@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>to do 26</title>
+<style>
+  :root{
+    --bg1: #0f1724;
+    --bg2: #102033;
+    --card: rgba(255,255,255,0.06);
+    --glass: rgba(255,255,255,0.04);
+    --accent: linear-gradient(90deg,#6EE7B7,#60A5FA,#A78BFA);
+    --accent-solid: #60A5FA;
+    --muted: rgba(255,255,255,0.6);
+    --glass-border: rgba(255,255,255,0.08);
+    --success: #34D399;
+    --danger: #FB7185;
+    --glass-blur: 8px;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    background: radial-gradient(1200px 600px at 10% 10%, rgba(96,165,250,0.08), transparent 6%),
+                radial-gradient(900px 400px at 90% 90%, rgba(167,139,250,0.05), transparent 6%),
+                linear-gradient(180deg,var(--bg1),var(--bg2));
+    color: #E6EEF6;
+  }
+
+  .wrap{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:36px 20px;
+  }
+
+  .app {
+    width:100%;
+    max-width:880px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid var(--glass-border);
+    border-radius:16px;
+    padding:22px;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+    backdrop-filter: blur(var(--glass-blur));
+    position:relative;
+    overflow:hidden;
+  }
+
+  header.app-head{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:12px;
+  }
+
+  .logo {
+    width:64px;
+    height:64px;
+    border-radius:12px;
+    background:var(--accent);
+    display:grid;
+    place-items:center;
+    font-weight:700;
+    font-size:18px;
+    color:#04263b;
+    box-shadow: 0 6px 18px rgba(96,165,250,0.12), inset 0 -6px 18px rgba(0,0,0,0.12);
+    flex:0 0 64px;
+  }
+
+  .title{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .title h1{
+    margin:0;
+    font-size:20px;
+    letter-spacing:0.2px;
+  }
+  .title p{
+    margin:0;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .controls {
+    margin-left:auto;
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+
+  .search {
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    padding:8px 12px;
+    border-radius:10px;
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .search input{
+    background:transparent;
+    border:0;
+    outline:0;
+    color:var(--muted);
+    width:180px;
+  }
+
+  .add-form{
+    display:flex;
+    gap:10px;
+    margin-top:12px;
+    align-items:center;
+  }
+  .add-input{
+    flex:1;
+    display:flex;
+    gap:10px;
+    align-items:center;
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));
+    border:1px solid var(--glass-border);
+    padding:12px;
+    border-radius:12px;
+  }
+  .add-input input{
+    flex:1;
+    background:transparent;
+    border:0;
+    color: #E6EEF6;
+    font-size:15px;
+    outline:0;
+  }
+  .btn {
+    background:var(--accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    border:1px solid rgba(255,255,255,0.06);
+    padding:8px 12px;
+    border-radius:10px;
+    font-weight:600;
+    cursor:pointer;
+    user-select:none;
+    transition:transform .12s ease, box-shadow .12s ease;
+    background-image: linear-gradient(90deg,#6EE7B7,#60A5FA);
+    color:#04263b;
+    box-shadow: 0 6px 18px rgba(96,165,250,0.08);
+  }
+  .btn:active{ transform:translateY(1px) }
+
+  main.content{
+    display:grid;
+    grid-template-columns: 1fr 320px;
+    gap:18px;
+    margin-top:16px;
+  }
+
+  /* left: list */
+  .panel{
+    background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+    border-radius:12px;
+    padding:12px;
+    border:1px solid var(--glass-border);
+    min-height:300px;
+    max-height:56vh;
+    overflow:auto;
+    position:relative;
+    scroll-behavior:smooth;
+  }
+
+  .panel::-webkit-scrollbar{ height:10px; width:10px }
+  .panel::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.04); border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
+
+  .filters {
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
+    align-items:center;
+  }
+
+  .chip {
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.03);
+    padding:6px 10px;
+    border-radius:999px;
+    cursor:pointer;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .chip.active{
+    background:var(--accent);
+    color:#04263b;
+    border:0;
+    box-shadow: 0 8px 20px rgba(96,165,250,0.08);
+  }
+
+  ul.todo-list{
+    list-style:none;
+    margin:0;
+    padding:6px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  li.todo {
+    display:flex;
+    gap:12px;
+    align-items:center;
+    padding:10px;
+    border-radius:10px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.007));
+    border:1px solid rgba(255,255,255,0.02);
+    transition:transform .18s cubic-bezier(.2,.9,.3,1), box-shadow .12s ease, opacity .12s ease;
+    will-change:transform,opacity;
+    opacity:0;
+    transform:translateY(8px) scale(.995);
+    cursor:grab;
+  }
+  li.todo.dragging{ opacity:0.85; transform:scale(1.02); box-shadow:0 14px 40px rgba(2,6,23,0.5); cursor:grabbing; }
+
+  li.todo.revealed{ opacity:1; transform:none; }
+
+  .todo .tick {
+    border-radius:8px;
+    width:36px;
+    height:36px;
+    flex:0 0 36px;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.03);
+    cursor:pointer;
+  }
+  .todo.completed{ opacity:0.8; filter:saturate(0.7); text-decoration:line-through; color:rgba(255,255,255,0.6) }
+
+  .todo .text {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .todo .text b{ font-size:15px }
+  .todo .meta{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  .todo .actions {
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .icon-btn{
+    background:transparent;
+    border:0;
+    padding:6px;
+    border-radius:8px;
+    cursor:pointer;
+    color:var(--muted);
+  }
+  .icon-btn:hover{ background:rgba(255,255,255,0.02) }
+
+  /* right: sidebar */
+  aside.sidebar{
+    background:linear-gradient(180deg, rgba(255,255,255,0.012), rgba(255,255,255,0.008));
+    border-radius:12px;
+    padding:14px;
+    border:1px solid var(--glass-border);
+    min-height:300px;
+  }
+
+  .progress-wrap{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .progress {
+    height:12px;
+    background: rgba(255,255,255,0.04);
+    border-radius:999px;
+    flex:1;
+    overflow:hidden;
+    position:relative;
+    border:1px solid rgba(255,255,255,0.02);
+  }
+  .progress > i {
+    height:100%;
+    display:block;
+    width:0%;
+    background:linear-gradient(90deg,#60A5FA,#A78BFA);
+    transition:width .45s cubic-bezier(.2,.9,.3,1);
+    box-shadow: 0 6px 16px rgba(96,165,250,0.08);
+  }
+  .progress-percent{ min-width:48px; text-align:right; color:var(--muted); font-weight:600; }
+
+  .stats{
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+  }
+  .stat{
+    flex:1;
+    background:rgba(255,255,255,0.02);
+    padding:10px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.02);
+    text-align:center;
+  }
+  .muted-small{ color:var(--muted); font-size:13px }
+
+  /* small helpers */
+  .hint{ color:var(--muted); font-size:13px }
+  .tiny{ font-size:12px; color:var(--muted) }
+
+  /* drag placeholder */
+  .gap {
+    height:10px;
+    transition:height .12s ease;
+  }
+
+  /* edit input */
+  .edit-input{
+    background:transparent;
+    color:inherit;
+    border:0;
+    outline:0;
+    font-size:15px;
+    width:100%;
+  }
+
+  /* btns at bottom */
+  .bottom-actions{
+    margin-top:12px;
+    display:flex;
+    gap:8px;
+  }
+
+  /* small responsive */
+  @media (max-width:880px){
+    main.content{ grid-template-columns: 1fr; }
+    aside.sidebar{ order:2 }
+  }
+
+  /* small flourish */
+  .sparkle {
+    position:absolute;
+    right:-160px;
+    top:-80px;
+    width:300px;height:300px;
+    background: conic-gradient(from 120deg at 50% 50%, rgba(96,165,250,0.06), rgba(167,139,250,0.05), transparent 60%);
+    filter: blur(36px);
+    transform: rotate(10deg);
+    pointer-events:none;
+  }
+
+  /* subtle bounce when adding */
+  @keyframes pop-in {
+    0% { transform: translateY(8px) scale(.98); opacity:0 }
+    60% { transform: translateY(-6px) scale(1.02); opacity:1 }
+    100% { transform: translateY(0) scale(1) }
+  }
+
+  /* small toast */
+  .toast{
+    position:fixed;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:22px;
+    background:rgba(5,8,15,0.9);
+    color:#E6EEF6;
+    padding:10px 14px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+    font-size:13px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .18s ease, transform .18s ease;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(-6px); pointer-events:auto; }
+
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="app" role="application" aria-label="to do 26 application">
+      <div class="sparkle" aria-hidden="true"></div>
+
+      <header class="app-head">
+        <div class="logo" title="to do 26">26</div>
+        <div class="title">
+          <h1>to do 26</h1>
+          <p class="tiny">A single-file, animated todo app — persistent, keyboard-friendly, and draggable.</p>
+        </div>
+
+        <div class="controls">
+          <div class="search" title="Filter by text">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6"/></svg>
+            <input id="globalSearch" placeholder="Search tasks..." aria-label="Search tasks" />
+          </div>
+          <button class="btn" id="importBtn" title="Import tasks">Import</button>
+          <button class="btn" id="exportBtn" title="Export tasks">Export</button>
+        </div>
+      </header>
+
+      <form id="addForm" class="add-form" onsubmit="return false;">
+        <div class="add-input" title="Add a new task">
+          <input id="addInput" placeholder="Add a new task (press Enter to save) — try: 'Plan gym, 45min' " aria-label="New task" />
+          <select id="priority" title="Priority" aria-label="Priority" style="background:transparent;border:0;color:var(--muted);outline:0">
+            <option value="normal">Normal</option>
+            <option value="high">High</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <button id="addBtn" class="btn" title="Add task">Add</button>
+      </form>
+
+      <main class="content" role="main">
+        <section class="panel" id="panel" aria-live="polite" aria-label="Task list">
+          <div class="filters" role="toolbar" aria-label="Filters">
+            <button class="chip active" data-filter="all">All</button>
+            <button class="chip" data-filter="active">Active</button>
+            <button class="chip" data-filter="completed">Completed</button>
+            <div style="flex:1"></div>
+            <span class="hint tiny">Tip: drag to reorder • double-click text to edit</span>
+          </div>
+
+          <ul class="todo-list" id="todoList"></ul>
+
+          <div class="bottom-actions">
+            <button class="chip" id="clearCompleted">Clear completed</button>
+            <button class="chip" id="clearAll">Clear all</button>
+            <div style="flex:1"></div>
+            <span class="tiny muted-small" id="lastSaved">Not saved</span>
+          </div>
+        </section>
+
+        <aside class="sidebar" aria-label="Sidebar">
+          <div class="progress-wrap">
+            <div style="width:60px; text-align:center;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M12 3v9l4 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="progress" aria-hidden><i id="progressBar"></i></div>
+                <div class="progress-percent" id="progressPercent">0%</div>
+              </div>
+              <div class="tiny muted-small">Completion</div>
+            </div>
+          </div>
+
+          <div class="stats" aria-hidden>
+            <div class="stat">
+              <div style="font-weight:700" id="statTotal">0</div>
+              <div class="tiny muted-small">Total</div>
+            </div>
+            <div class="stat">
+              <div style="font-weight:700" id="statActive">0</div>
+              <div class="tiny muted-small">Active</div>
+            </div>
+            <div class="stat">
+              <div style="font-weight:700" id="statCompleted">0</div>
+              <div class="tiny muted-small">Completed</div>
+            </div>
+          </div>
+
+          <div style="margin-top:8px">
+            <h3 style="margin:0 0 8px 0">Shortcuts</h3>
+            <div class="tiny muted-small">
+              Enter: add • / : focus search • E: edit selected • Delete: remove selected • Ctrl+F: focus search
+            </div>
+          </div>
+
+          <div style="margin-top:14px">
+            <h3 style="margin:0 0 8px 0">Quick actions</h3>
+            <button class="btn" id="sortAlpha">Sort A→Z</button>
+            <button class="btn" id="sortPriority">Sort by priority</button>
+          </div>
+        </aside>
+      </main>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+<script>
+/* to do 26 - single-file app
+   Features:
+   - add/edit/delete tasks
+   - mark complete
+   - drag-and-drop reorder
+   - filters: all/active/completed
+   - localStorage persistence
+   - export/import JSON
+   - animations: add pop, reveal on scroll (IntersectionObserver)
+   - progress bar and stats
+   - keyboard shortcuts
+*/
+
+/* Utilities */
+const $ = sel => document.querySelector(sel);
+const qs = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+/* Data model */
+let todos = []; // {id, text, done, createdAt, priority}
+const STORAGE_KEY = 'todo26_v1';
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+  updateLastSaved();
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) todos = JSON.parse(raw);
+  } catch(e){ todos = []; }
+}
+
+/* small helpers */
+function id(){ return 't_' + Math.random().toString(36).slice(2,9) }
+function now(){ return new Date().toISOString() }
+function showToast(msg, timeout=1800) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._hide);
+  t._hide = setTimeout(()=> t.classList.remove('show'), timeout);
+}
+function updateLastSaved(){
+  const el = $('#lastSaved');
+  const ts = new Date().toLocaleTimeString();
+  el.textContent = 'Saved ' + ts;
+}
+
+/* Rendering & DOM */
+const listEl = $('#todoList');
+const panel = $('#panel');
+
+function createTodoElement(task){
+  const li = document.createElement('li');
+  li.className = 'todo';
+  li.draggable = true;
+  li.dataset.id = task.id;
+  li.innerHTML = `
+    <div class="tick" title="Toggle complete" aria-hidden>
+      ${task.done ? checkSVG() : circleSVG()}
+    </div>
+    <div class="text">
+      <div class="titleRow" style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;gap:8px;align-items:center">
+          <strong>${escapeHtml(task.text)}</strong>
+          <span class="tiny muted-small" style="padding:4px 8px;border-radius:8px;background:rgba(255,255,255,0.02)">${task.priority}</span>
+        </div>
+        <div style="margin-left:auto" class="meta">
+          <span class="tiny muted-small">${new Date(task.createdAt).toLocaleDateString()}</span>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="tiny muted-small">${task.done ? 'Completed' : 'Pending'}</div>
+        <div style="flex:1"></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="icon-btn edit" title="Edit" aria-label="Edit task">${pencilSVG()}</button>
+      <button class="icon-btn del" title="Delete" aria-label="Delete task">${trashSVG()}</button>
+      <button class="icon-btn drag-handle" title="Drag to reorder" aria-label="Drag handle">${dragSVG()}</button>
+    </div>
+  `;
+  if(task.done) li.classList.add('completed');
+
+  // event bindings
+  li.querySelector('.tick').addEventListener('click', (e)=>{
+    toggleDone(task.id);
+  });
+  li.querySelector('.del').addEventListener('click', (e)=>{
+    removeTask(task.id);
+  });
+  li.querySelector('.edit').addEventListener('click', (e)=>{
+    startEdit(li, task);
+  });
+
+  // double click on text to edit
+  li.querySelector('.text strong').addEventListener('dblclick', ()=> startEdit(li, task));
+
+  // animation hook for reveal
+  li.classList.remove('revealed');
+  // small pop animation
+  li.style.animation = 'pop-in .36s cubic-bezier(.2,.9,.3,1)';
+  setTimeout(()=> li.style.animation = '', 380);
+
+  /* drag events */
+  li.addEventListener('dragstart', e=>{
+    li.classList.add('dragging');
+    e.dataTransfer.setData('text/plain', task.id);
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  li.addEventListener('dragend', e=>{
+    li.classList.remove('dragging');
+    render(); // ensure clean
+  });
+
+  return li;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":"&#39;" }[c]));
+}
+
+function render(filter='all', highlightId=null){
+  listEl.innerHTML = '';
+  const visible = todos.filter(t=>{
+    if(!filter || filter === 'all') return true;
+    if(filter === 'active') return !t.done;
+    if(filter === 'completed') return t.done;
+  });
+
+  // optional search filter
+  const q = $('#globalSearch').value.trim().toLowerCase();
+  const final = visible.filter(t => t.text.toLowerCase().includes(q));
+
+  for(const t of final){
+    const li = createTodoElement(t);
+    listEl.appendChild(li);
+  }
+
+  // hooks for drag-and-drop reorder of list container
+  setupDroppable();
+
+  // reveal animation with IntersectionObserver (scroll reveal)
+  revealOnScroll();
+
+  updateStats();
+}
+
+/* CRUD */
+function addTask(text, priority='normal'){
+  if(!text || !text.trim()) { showToast('Task is empty'); return; }
+  const task = { id: id(), text: text.trim(), done:false, createdAt: now(), priority };
+  todos.unshift(task); // newest first
+  save();
+  render(getActiveFilter());
+  // scroll the container to top to show new task smoothly
+  panel.scrollTo({ top:0, behavior:'smooth' });
+  showToast('Added');
+}
+
+function toggleDone(taskId){
+  const t = todos.find(x=>x.id===taskId);
+  if(!t) return;
+  t.done = !t.done;
+  save();
+  render(getActiveFilter());
+  showToast(t.done ? 'Completed' : 'Marked active');
+}
+
+function removeTask(taskId){
+  todos = todos.filter(x=>x.id!==taskId);
+  save();
+  render(getActiveFilter());
+  showToast('Deleted');
+}
+
+function startEdit(li, task){
+  const textEl = li.querySelector('.text');
+  const strong = li.querySelector('.text strong');
+  const old = task.text;
+  // replace with input
+  const input = document.createElement('input');
+  input.className = 'edit-input';
+  input.value = task.text;
+  textEl.querySelector('.titleRow').replaceChild(input, strong.parentElement || strong);
+  input.focus();
+  input.setSelectionRange(0, input.value.length);
+
+  function finish(saveEdit){
+    if(saveEdit){
+      task.text = input.value.trim() || old;
+      save();
+      render(getActiveFilter());
+      showToast('Saved');
+    } else {
+      render(getActiveFilter());
+      showToast('Edit canceled');
+    }
+    cleanup();
+  }
+  function cleanup(){
+    input.removeEventListener('blur', onBlur);
+    input.removeEventListener('keydown', onKey);
+  }
+  function onBlur(){ finish(true) }
+  function onKey(e){ if(e.key === 'Enter') finish(true); if(e.key === 'Escape') finish(false); }
+  input.addEventListener('blur', onBlur);
+  input.addEventListener('keydown', onKey);
+}
+
+/* Filters and UI */
+function getActiveFilter(){
+  const active = qs('.chip.active');
+  return active.length ? active[0].dataset.filter : 'all';
+}
+qs('.chip').forEach(c=>{
+  c.addEventListener('click', ()=>{
+    qs('.chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    render(c.dataset.filter);
+  });
+});
+
+$('#addBtn').addEventListener('click', ()=>{
+  addTask($('#addInput').value, $('#priority').value);
+  $('#addInput').value = '';
+  $('#addInput').focus();
+});
+$('#addInput').addEventListener('keydown', e=>{
+  if(e.key === 'Enter'){ addTask($('#addInput').value, $('#priority').value); $('#addInput').value=''; }
+});
+
+$('#globalSearch').addEventListener('input', ()=> render(getActiveFilter()));
+
+/* Local storage load & initial render */
+load();
+render();
+
+/* Stats & progress */
+function updateStats(){
+  const total = todos.length;
+  const completed = todos.filter(t => t.done).length;
+  const active = total - completed;
+  $('#statTotal').textContent = total;
+  $('#statCompleted').textContent = completed;
+  $('#statActive').textContent = active;
+  const pct = total ? Math.round((completed/total)*100) : 0;
+  $('#progressBar').style.width = pct + '%';
+  $('#progressPercent').textContent = pct + '%';
+}
+
+/* Clear actions */
+$('#clearCompleted').addEventListener('click', ()=>{
+  todos = todos.filter(t => !t.done);
+  save(); render(getActiveFilter());
+  showToast('Cleared completed');
+});
+$('#clearAll').addEventListener('click', ()=>{
+  if(!confirm('Delete ALL tasks? This cannot be undone.')) return;
+  todos = [];
+  save(); render(getActiveFilter());
+  showToast('All cleared');
+});
+
+/* Export / Import */
+$('#exportBtn').addEventListener('click', ()=>{
+  const data = JSON.stringify(todos, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'todo26-export.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Exported JSON');
+});
+$('#importBtn').addEventListener('click', ()=>{
+  const inp = document.createElement('input');
+  inp.type='file';
+  inp.accept='application/json';
+  inp.onchange = e=>{
+    const f = e.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        if(Array.isArray(parsed)){
+          // basic validation
+          todos = parsed.map(t=>({
+            id: t.id || id(),
+            text: t.text || 'Untitled',
+            done: !!t.done,
+            createdAt: t.createdAt || now(),
+            priority: t.priority || 'normal'
+          }));
+          save(); render(getActiveFilter());
+          showToast('Imported');
+        } else showToast('Invalid file');
+      } catch(err
